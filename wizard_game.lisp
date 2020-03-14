@@ -16,3 +16,7 @@
 (defun describe-path (edge)
   ;; flip/flop/flop.  Quasi-quoting to jump out of data mode.
   `(there is a ,(caddr edge) going ,(cadr edge) from here.))
+
+(defun describe-paths (location edges)
+  (apply #'append (mapcar #'describe-path (cdr (assoc location edges)))))
+
