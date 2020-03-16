@@ -24,6 +24,12 @@
 (defun player-dead-p ()
   (<= *player-health* 0))
 
+(defun monster-dead-p (m)
+  (<= (monster-health m) 0))
+
+(defun monsters-dead-p ()
+  (every #'monster-dead-p *monsters*))
+
 (defun show-player ()
   (fresh-line)
   (princ "You are a valiant knight with a health of ")
@@ -32,6 +38,24 @@
   (princ *player-agility*)
   (princ ", and a strength of ")
   (princ *player-strength*))
+
+(defun show-monsters ()
+  (fresh-line)
+  (princ "Your foes:")
+  (let ((x 0))
+    (map 'list
+         (lambda (m)
+           (fresh-line)
+           (print "    ")
+           (print (incf x))
+           (princ ". ")
+           (if (monster-dead-p m)
+               (princ "**dead**")
+               (progn (princ "(Health=")
+                      (print (monster-health m))
+                      (princ ") ")
+                      (monster-show m))))
+         *monsters*)))
 
 (defun random-monster ()
   (let ((m (aref *monsters* (random (length *monsters*)))))
