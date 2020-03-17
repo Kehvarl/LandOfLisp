@@ -8,11 +8,25 @@
 (defparameter *monster-builders* nil)
 (defparameter *monster-num* 12)
 
+;;; Monster Builders
+;; Default Monster
 (defstruct monster (health (randval 10)))
 (defmethod monster-show (m)
   (princ "A fierce ")
   (princ (type-of m)))
 (defmethod monster-attack (m))
+(defmethod monster-hit (m x)
+  (decf (monster-health m) x)
+  (if (monster-dead-p m)
+      (progn (princ "You killed the ")
+             (princ (type-of m))
+             (princ "! "))
+      (progn (princ "You hit the ")
+             (princ (type-of m))
+             (princ ", knocking off ")
+             (princ x)
+             (princ "health points! "))))
+;; Orc
 (defstruct (orc (:include monster)) (club-level (randval 8)))
 (push #'make-orc *monster-builders*)
 (defmethod monster-show ((m orc))
@@ -25,6 +39,20 @@
     (princ x)
     (princ " of your health points. ")
     (decf *player-health* x)))
+;; Hydra
+(defstruct (hydra (:include monster)))
+(push #'make-hydra *monster-builders*)
+(defmethod monster-show ((m hydra))
+  (princ "A malicious hydra with ")
+  (princ (monster-health m))
+  (princ " heads. "))
+(defmethod monster-hit ((m hydra) x)
+  (decf (monster-health m) x)
+  (if (monster-dead-p m)
+      (princ "The corpse of the fully decapitated and decapacitated hydra falls to the floor!")
+      (progn (princ "You lop off ")
+             (princ x)
+             (princ " of the hydra's heads! "))))
 
 (defun init-player()
   (setf *player-health* 20)
@@ -47,18 +75,6 @@
 
 (defun monsters-dead-p ()
   (every #'monster-dead-p *monsters*))
-
-(defun monster-hit (m x)
-  (decf (monster-health m) x)
-  (if (monster-dead-p m)
-      (progn (princ "You killed the ")
-             (princ (type-of m))
-             (princ "! "))
-      (progn (princ "You hit the ")
-             (princ (type-of m))
-             (princ ", knocking off ")
-             (princ x)
-             (princ "health points! "))))
 
 (defun show-player ()
   (fresh-line)
@@ -119,7 +135,7 @@
          (monster-hit (pick-monster) x)
          (unless (monsters-dead-p)
            (monster-hit (pick-monster) x))))
-    (otherwise (dotimes (x (1+ randval (truncate (/ *player-strength* 3))))
+    (otherwise (dotimes (x (1+ (randval (truncate (/ *player-strength* 3)))))
                  (unless (monsters-dead-p)
                    (monster-hit (random-monster) 1))))))
 
@@ -135,7 +151,7 @@
 
 
 (defun game-loop ()
-  (unless (or (platyer-dead-p) (monsters-dead-p))
+  (unless (or (player-dead-p) (monsters-dead-p))
     (show-player)
     (dotimes (k (1+ (truncate (/ (max 0 *player-agility*) 15 ))))
       (unless (monsters-dead-p)
