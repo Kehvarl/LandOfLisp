@@ -13,6 +13,8 @@
   (princ "A fierce ")
   (princ (type-of m)))
 (defmethod monster-attack (m))
+(defstruct (orc (:include monster)) (club-level (randval 8)))
+(push #'make-orc *monster-builders*)
 
 (defun init-player()
   (setf *player-health* 20)
