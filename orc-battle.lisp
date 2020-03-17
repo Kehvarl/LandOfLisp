@@ -8,6 +8,12 @@
 (defparameter *monster-builders* nil)
 (defparameter *monster-num* 12)
 
+(defstruct monster (health (randval 10)))
+(defmethod monster-show (m)
+  (princ "A fierce ")
+  (princ (type-of m)))
+(defmethod monster-attack (m))
+
 (defun init-player()
   (setf *player-health* 20)
   (setf *player-agility* 30)
@@ -29,6 +35,18 @@
 
 (defun monsters-dead-p ()
   (every #'monster-dead-p *monsters*))
+
+(defun monster-hit (m x)
+  (decf (monster-health m) x)
+  (if (monster-dead-p m)
+      (progn (princ "You killed the ")
+             (princ (type-of m))
+             (princ "! "))
+      (progn (princ "You hit the ")
+             (princ (type-of m))
+             (princ ", knocking off ")
+             (princ x)
+             (princ "health points! "))))
 
 (defun show-player ()
   (fresh-line)
@@ -117,3 +135,6 @@
            (or (monster-dead-p m) (monster-attack m)))
          *monsters*)
     (game-loop)))
+
+(defun randval (n)
+  (1+ (random (max 1 n))))
