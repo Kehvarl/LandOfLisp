@@ -53,6 +53,13 @@
       (progn (princ "You lop off ")
              (princ x)
              (princ " of the hydra's heads! "))))
+(defmethod monster-attack ((m hydra))
+  (let ((x (randval (ash (monster-health m) -1))))
+    (princ "A hydra attacks you with ")
+    (princ x)
+    (princ " of its heads!  It also grows back one more head! ")
+    (incf (monster-health m))
+    (decf *player-health* x)))
 
 (defun init-player()
   (setf *player-health* 20)
