@@ -34,3 +34,12 @@
     (if x
         (cons (subseq url 0 x) (parse-params (subseq url (1+ x))))
         (cons url '()))))
+
+(defun get-header (stream)
+  (let* ((s (read-line stream))
+         (h (let ((i (position #\: s)))
+              (when i
+                (cons (intern (string-upcase (subseq s 0 i)))
+                      (subseq s (+ i 2)))))))
+    (when h
+      (cons h (get-header stream)))))
