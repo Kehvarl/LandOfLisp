@@ -26,4 +26,11 @@
           ((equal s "") nil)
           (t s))))
 
-
+(defun parse-url (s)
+  (let* ((url (subseq s
+                      (+ 2 (position #\space s))
+                      (position #\space s :from-end t)))
+         (x (position #\? url)))
+    (if x
+        (cons (subseq url 0 x) (parse-params (subseq url (1+ x))))
+        (cons url '()))))
