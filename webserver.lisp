@@ -15,5 +15,15 @@
                             (f (cdddr lst))))
                  (#\+ (cons #\space (f (cdr lst))))
                  (otherwise (cons (car lst) (f (cdr lst))))))))
-    (coerce (f (coerce x 'list)) 'string)))
+    (coerce (f (coerce s 'list)) 'string)))
+
+(defun parse-params (s)
+  (let ((i1 (position #\= s))
+        (i2 (position #\& s)))
+    (cond (i1  (cons (cons (intern (string-upcase (subseq s 0 i1)))
+                           (decode-param (subseq s (1+ i1) i2)))
+                     (and i2 (parse-params (subseq s (1+ i2))))))
+          ((equal s "") nil)
+          (t s))))
+
 
