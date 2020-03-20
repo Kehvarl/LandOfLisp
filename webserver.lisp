@@ -50,3 +50,27 @@
       (let ((content (make-string (parse-integer length))))
         (read-sequence content stream)
         (parse-params content)))))
+
+(defun serve (request-handler)
+  (let ((socket (usocket:socket-listen #(127 0 0 1) 8080 :reuse-address t)))
+    (unwind-protect
+         (loop (with-open-stream (stream (usocket:socket-stream (usocket:socket-accept socket)))
+                 (let* ((url     (parse-url (read-line stream nil)))
+                        (path    (car url))
+                        (header  (get-header stream))
+                        (params  (append (cdr url)
+                                         (get-content-params stream header)))
+                        (*standard-output* stream))
+                   (funcall request-handler path header params))))
+      (usocket:socket-close socket))))
+
+(defun hello-request-handler (path header params)
+  (if (equal path "greeting")
+      (let ((name (assoc 'name params)))
+        (format t "HTTP/1.1 200 OK~%~%")
+        (if (not name)
+            (princ "<html><form>What is your name?<input name='name'/></form></html>")
+            (format t "<html>Nice to meet you, ~a!</html>" (cdr name))))
+  (princ "Sorry... I don't know that page.")))
+
+                 
