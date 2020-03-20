@@ -43,3 +43,10 @@
                       (subseq s (+ i 2)))))))
     (when h
       (cons h (get-header stream)))))
+
+(defun get-content-params (stream header)
+  (let ((length (cdr (assoc 'content-length header))))
+    (when length
+      (let ((content (make-string (parse-integer length))))
+        (read-sequence content stream)
+        (parse-params content)))))
