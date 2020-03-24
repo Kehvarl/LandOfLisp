@@ -76,3 +76,9 @@
           collect p)))
 
 
+(defun board-attack (board player src dst dice)
+  (board-array (loop for pos from 0
+                     for hex across board
+                     collect (cond ((eq pos src) (list player 1))
+                                   ((eq pos dst) (list player (1- dice)))
+                                   (t hex)))))
