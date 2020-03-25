@@ -95,3 +95,28 @@
                             (cons (car lst) (f (cdr lst) n))))))))
     (board-array (f (coerce board 'list) spare-dice))))
 
+(defun play-vs-human (tree)
+  (print-info tree)
+  (if (caddr tree)
+      (play-vs-human (handle-human tree))
+      (announce-winner (cadr tree))))
+
+(defun print-info (tree)
+  (fresh-line)
+  (format t "current player = ~a" (player-letter (car tree)))
+  (draw-board (cadr tree)))
+
+(defun handle-human (tree)
+  (fresh-line)
+  (princ "choose your move:")
+  (let ((moves (caddr tree)))
+    (loop for move in moves
+          for n from 1
+          do (let ((action (car move)))
+               (fresh-line)
+               (format t "~a. " n)
+               (if action
+                   (format t "~a -> ~a" (car action) (cadr action))
+                   (princ "end turn"))))
+    (fresh-line)
+    (cadr (nth (1- (read)) moves))))
