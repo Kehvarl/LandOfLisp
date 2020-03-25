@@ -120,3 +120,23 @@
                    (princ "end turn"))))
     (fresh-line)
     (cadr (nth (1- (read)) moves))))
+
+(defun winners (board)
+  (let* ((tally (loop for hex across board
+                      collect (car hex)))
+         (totals (mapcar (lambda (player)
+                           (cons player (count player tally)))
+                         (remove-duplicates tally)))
+         (best (apply #'max (mapcar #'cdr totals))))
+    (mapcar #'car
+            (remove-if (lambda (x)
+                         (not (eq (cdr x) best)))
+                       totals))))
+
+(defun announce-winner (board)
+  (fresh-line)
+  (let ((w (winners board)))
+    (if (> (length w) 1)
+        (format t "The game is a tie between ~a" (mapcar #'player-letter w))
+        (format t "The winner is ~a" (player-letter (car w))))))
+
