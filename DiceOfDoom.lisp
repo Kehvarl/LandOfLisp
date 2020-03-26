@@ -140,3 +140,15 @@
         (format t "The game is a tie between ~a" (mapcar #'player-letter w))
         (format t "The winner is ~a" (player-letter (car w))))))
 
+(defun rate-position (tree player)
+  (let ((moves (caddr tree)))
+    (if moves
+        (apply (if (eq (car tree) player)
+                   #'max
+                   #'min)
+               (get-ratings tree player))
+        (let ((w (winners (cadr tree))))
+          (if (member player w)
+              (/ 1 (length w))
+              0)))))
+
