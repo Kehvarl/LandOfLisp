@@ -152,3 +152,7 @@
               (/ 1 (length w))
               0)))))
 
+(defun get-ratings (tree player)
+  (mapcar (lambda (move)
+            (rate-position (cadr move) player))
+          (caddr tree)))
