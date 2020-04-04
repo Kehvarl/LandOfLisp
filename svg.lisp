@@ -7,6 +7,21 @@
           ,@body
           (print-tag ',name nil t)))
 
+(defmacro html (&body body)
+  `(tag html ()
+     ,@body))
+
+(defmacro body (&body body)
+  `(tag body ()
+     ,@body))
+
+(defmacro svg (width height &body body)
+  `(tag svg (xmlns "http://www.w3.org/2000.svg"
+                   "xmlns:xlink" "http://www.w3.org/199/xlink"
+                   height ,height
+                   width ,width)
+     ,@body))
+
 (defmacro let1 (var val &body body)
   `(let ((,var ,val))
      ,@body))
@@ -32,7 +47,7 @@
 
 
 (defun print-tag (name alst closingp)
-  (print #\<)
+  (princ #\<)
   (when closingp
     (princ #\/))
   (princ (string-downcase name))
@@ -40,3 +55,20 @@
           (format t " ~a=\"~a\"" (string-downcase (car att)) (cdr att)))
         alst)
   (princ #\>))
+
+(defun brightness (col amt)
+  (mapcar (lambda (x)
+            (min 255 (max 0 (+ x amt))))
+          col))
+
+(defun svg-style (color)
+  (format nil
+          "~{fill:rgb(~a,~a,~a);stroke:rgb(~a,~a,~a)~}"
+          (append color
+                  (brightness color -100))))
+
+(defun circle (center radius color)
+  (tag circle (   cx (car center)
+                  cy (cdr center)
+                  r radius
+                  style (svg-style color))))
