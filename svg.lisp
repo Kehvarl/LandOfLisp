@@ -72,3 +72,11 @@
                   cy (cdr center)
                   r radius
                   style (svg-style color))))
+
+(defun polygon (points color)
+  (tag polygon (points (format nil
+                               "~{~a,~a ~}"
+                               (mapcan (lambda (tp)
+                                         (list (car tp) (cdr tp)))
+                                       points))
+                       style (svg-style color))))
