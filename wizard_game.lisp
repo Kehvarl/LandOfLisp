@@ -115,6 +115,20 @@
                      (have ',subj))
                 ,@body
                 '(i can't ,command like that.)))
-          (pushnew ',command *alllowed-commands*)))
+          (pushnew ',command *allowed-commands*)))
 
+(defparameter *chain-welded* nil)
 
+(game-action weld chain bucket attic
+             (if (and (have 'bucket) (not *chain-welded*))
+                      (progn (setf *chain-welded* 't)
+                             '(the chain is now securely welded to the bucket.))
+                      '(you do not have a bucket.)))
+
+(defparameter *bucket-filled* nil)
+
+(game-action dunk bucket well garden
+  (if *chain-welded*
+      (progn (setf *bucket-filled* 't)
+             '(the bucket is now full of water))
+      '(the water level is too low to reach.)))
