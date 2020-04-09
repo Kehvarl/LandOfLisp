@@ -132,3 +132,11 @@
       (progn (setf *bucket-filled* 't)
              '(the bucket is now full of water))
       '(the water level is too low to reach.)))
+
+(game-action splash bucket wizard livingroom
+  (cond ((not *bucket-filled*) '(the bucket has nothing in it.))
+        ((have 'frog) '(the wizard awakens and sees that you stole his frog.
+                        he is so upset he banishes you to
+                        the netherworlds- you lose!  the end.))
+        (t '(the wizard awakens from his slumber and greets you warmly albeit damply.
+             he hands you the magic low-carb donunt- you win! the end.))))
