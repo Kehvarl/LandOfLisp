@@ -20,3 +20,9 @@
 
 (defun lazy-dcr (x)
   (cdr (force x)))
+
+(defun lazy-nil ()
+  (lazy nil))
+
+(defun lazy-null (x)
+  (not (force x)))
