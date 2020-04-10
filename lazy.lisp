@@ -9,3 +9,14 @@
            (setf ,forced t))
          ,value))))
 
+(defun force (lazy-value)
+  (funcall lazy-value))
+
+(defmacro lazy-cons (a d)
+  `(lazy (cons ,a ,d)))
+
+(defun lazy-car (x)
+  (car (force x)))
+
+(defun lazy-dcr (x)
+  (cdr (force x)))
