@@ -18,7 +18,7 @@
 (defun lazy-car (x)
   (car (force x)))
 
-(defun lazy-dcr (x)
+(defun lazy-cdr (x)
   (cdr (force x)))
 
 (defun lazy-nil ()
@@ -26,3 +26,15 @@
 
 (defun lazy-null (x)
   (not (force x)))
+
+(defun make-lazy (lst)
+  (lazy (when lst
+          (cons (car lst) (make-lazy (cdr lst))))))
+
+(defun take (n lst)
+  (unless (or (zerop n) (lazy-null lst))
+    (cons (lazy-car lst) (take (1- n) (lazy-cdr lst)))))
+
+(defun take-all (lst)
+  (unless (lazy-null lst)
+    (cons (lazy-car lst) (take-all (lazy-cdr lst)))))
