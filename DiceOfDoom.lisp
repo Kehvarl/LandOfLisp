@@ -113,16 +113,19 @@
   (fresh-line)
   (princ "choose your move:")
   (let ((moves (caddr tree)))
-    (loop for move in moves
-          for n from 1
-          do (let ((action (car move)))
-               (fresh-line)
-               (format t "~a. " n)
-               (if action
-                   (format t "~a -> ~a" (car action) (cadr action))
-                   (princ "end turn"))))
+    (labels ((print-moves (moves n)
+               (unless (lazy-null moves)
+                 (let* ((move (lazy-car moves))
+                        (action (car move)))
+                   (fresh-line)
+                   (format t "~a. " n)
+                   (if action
+                       (format t "~a -> ~a" (car action) (cadr action))
+                       (princ "end turn.")))
+                 (print-moves (lazy-cdr moves) (1+ n)))))
+      (print-moves moves 1))
     (fresh-line)
-    (cadr (nth (1- (read)) moves))))
+    (cadr (lazy-nth (1- (read)) moves))))
 
 (defun winners (board)
   (let* ((tally (loop for hex across board
