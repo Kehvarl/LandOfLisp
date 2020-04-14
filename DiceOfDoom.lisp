@@ -100,7 +100,7 @@
 
 (defun play-vs-human (tree)
   (print-info tree)
-  (if (caddr tree)
+  (if (not (lazy-null (caddr tree)))
       (play-vs-human (handle-human tree))
       (announce-winner (cadr tree))))
 
