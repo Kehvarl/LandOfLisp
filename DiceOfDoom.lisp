@@ -49,19 +49,27 @@
              (car (aref board pos)))
            (dice (pos)
              (cadr (aref board pos))))
-    (lazy-mapcan (lambda (src)
-              (when (eq (player src) cur-player)
-                (lazy-mapcan (lambda (dst)
-                          (if (and (not (eq (player dst) cur-player))
+    (lazy-mapcan
+     (lambda (src)
+              (if (eq (player src) cur-player)
+                  (lazy-mapcan
+                   (lambda (dst)
+                     (if (and (not (eq (player dst)
+                                       cur-player))
                                      (> (dice src) (dice dst)))
                             (make-lazy
                              (list (list (list src dst)
-                                   (game-tree (board-attack board cur-player src dst (dice src))
+                                         (game-tree (board-attack board
+                                                                  cur-player
+                                                                  src
+                                                                  dst
+                                                                  (dice src))
                                               cur-player
                                               (+ spare-dice (dice dst))
                                               nil))))
                             (lazy-nil)))
-                        (neighbors src))))
+                   (make-lazy (neighbors src)))
+                  (lazy-nil)))
             (make-lazy (loop for n below *board-hexnum*
                   collect n)))))
 
@@ -100,6 +108,7 @@
 
 (defun play-vs-human (tree)
   (print-info tree)
+  (print tree)
   (if (not (lazy-null (caddr tree)))
       (play-vs-human (handle-human tree))
       (announce-winner (cadr tree))))
