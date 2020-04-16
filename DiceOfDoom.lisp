@@ -204,3 +204,13 @@
                           (or (gethash tree tab)
                               (setf (gethash tree tab)
                                     (funcall old-rate-position tree player))))))
+
+(defun limit-tree-depth (tree depth)
+  (list (car tree)
+        (cadr tree)
+        (if (zerop depth)
+            (lazy-nil)
+            (lazy-mapcar (lambda (move)
+                           (list (car move)
+                                 (limit-tree-depth (cadr move) (1- depth))))
+                         (caddr tree)))))
