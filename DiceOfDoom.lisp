@@ -2,6 +2,7 @@
 (defparameter *max-dice* 3)
 (defparameter *board-size* 4)
 (defparameter *board-hexnum* (* *board-size* *board-size*))
+(defparameter *ai-level* 4)
 
 (defun board-array (lst)
   (make-array *board-hexnum* :initial-contents lst))
@@ -173,8 +174,10 @@
           (caddr tree)))
 
 (defun handle-computer (tree)
-  (let ((ratings (get-ratings tree (car tree))))
-    (cadr (nth (position (apply #'max ratings) ratings) (caddr tree)))))
+  (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*)
+                              (car tree))))
+    (cadr (lazy-nth (position (apply #'max ratings) ratings)
+                    (caddr tree)))))
 
 (defun play-vs-computer (tree)
   (print-info tree)
