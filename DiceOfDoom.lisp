@@ -181,9 +181,9 @@
 
 (defun play-vs-computer (tree)
   (print-info tree)
-  (cond ((null (caddr tree)) (announce-winner (cadr tree)))
+  (cond ((lazy-null (caddr tree)) (announce-winner (cadr tree)))
         ((zerop (car tree)) (play-vs-computer (handle-human tree)))
-        (t (play-vs-computer (handle-computer tree)))))
+        (t (play-vs-computer  (handle-computer tree)))))
 
 
 (let ((old-neighbors (symbol-function 'neighbors))
