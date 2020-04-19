@@ -158,20 +158,17 @@
 
 (defun rate-position (tree player)
   (let ((moves (caddr tree)))
-    (if moves
+    (if (not (lazy-null moves))
         (apply (if (eq (car tree) player)
                    #'max
                    #'min)
                (get-ratings tree player))
-        (let ((w (winners (cadr tree))))
-          (if (member player w)
-              (/ 1 (length w))
-              0)))))
+        (score-board (cadr tree) player))))
 
 (defun get-ratings (tree player)
-  (mapcar (lambda (move)
-            (rate-position (cadr move) player))
-          (caddr tree)))
+  (take-all (lazy-mapcar (lambda (move)
+                           (rate-position (cadr move) player))
+                         (caddr tree))))
 
 (defun handle-computer (tree)
   (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*)
@@ -218,7 +215,7 @@
                                  (limit-tree-depth (cadr move) (1- depth))))
                          (caddr tree)))))
 
-(defun score-baord (board player)
+(defun score-board (board player)
   (loop for hex across board for pos from 0
         sum (if (eq (car hex) player)
                 (if (threatened pos board)
@@ -237,3 +234,4 @@
                (when (and (not (eq player nplayer))
                           (> ndice dice))
                  (return t))))))
+
