@@ -1,6 +1,6 @@
 (defparameter *numplayers* 2)
 (defparameter *max-dice* 3)
-(defparameter *board-size* 4)
+(defparameter *board-size* 5)
 (defparameter *board-hexnum* (* *board-size* *board-size*))
 (defparameter *ai-level* 4)
 
@@ -39,9 +39,9 @@
       moves
       (lazy-cons (list nil
                   (game-tree (add-new-dice board player (1- spare-dice))
-                              (mod (1+ player) *numplayers*)
-                              0
-                              t))
+                             (mod (1+ player) *numplayers*)
+                             0
+                             t))
             moves)))
 
 
@@ -52,27 +52,27 @@
              (cadr (aref board pos))))
     (lazy-mapcan
      (lambda (src)
-              (if (eq (player src) cur-player)
-                  (lazy-mapcan
-                   (lambda (dst)
-                     (if (and (not (eq (player dst)
-                                       cur-player))
-                                     (> (dice src) (dice dst)))
-                            (make-lazy
-                             (list (list (list src dst)
-                                         (game-tree (board-attack board
-                                                                  cur-player
-                                                                  src
-                                                                  dst
-                                                                  (dice src))
-                                              cur-player
-                                              (+ spare-dice (dice dst))
-                                              nil))))
-                            (lazy-nil)))
-                   (make-lazy (neighbors src)))
-                  (lazy-nil)))
-            (make-lazy (loop for n below *board-hexnum*
-                  collect n)))))
+             (if (eq (player src) cur-player)
+                 (lazy-mapcan
+                  (lambda (dst)
+                    (if (and (not (eq (player dst)
+                                      cur-player))
+                             (> (dice src) (dice dst)))
+                        (make-lazy
+                         (list (list (list src dst)
+                                     (game-tree (board-attack board
+                                                              cur-player
+                                                              src
+                                                              dst
+                                                              (dice src))
+                                          cur-player
+                                          (+ spare-dice (dice dst))
+                                          nil))))
+                        (lazy-nil)))
+                  (make-lazy (neighbors src)))
+                 (lazy-nil)))
+     (make-lazy (loop for n below *board-hexnum*
+                 collect n)))))
 
 (defun neighbors (pos)
   (let ((up (- pos *board-size*))
@@ -96,15 +96,15 @@
 (defun add-new-dice (board player spare-dice)
   (labels ((f (lst n acc)
              (cond ((zerop n) (append (reverse acc) lst))
-             ((null lst) (reverse acc))
-             (t (let ((cur-player (caar lst))
-                      (cur-dice (cadar lst)))
-                  (if (and (eq cur-player player)
-                           (< cur-dice *max-dice*))
-                      (f (cdr lst)
-                         (1- n)
-                         (cons (list cur-player (1+ cur-dice)) acc))
-                      (f (cdr lst) n (cons (car lst) acc))))))))
+              ((null lst) (reverse acc))
+              (t (let ((cur-player (caar lst))
+                       (cur-dice (cadar lst)))
+                   (if (and (eq cur-player player)
+                            (< cur-dice *max-dice*))
+                       (f (cdr lst)
+                          (1- n)
+                          (cons (list cur-player (1+ cur-dice)) acc))
+                       (f (cdr lst) n (cons (car lst) acc))))))))
     (board-array (f (coerce board 'list) spare-dice ()))))
 
 (defun play-vs-human (tree)
@@ -171,8 +171,10 @@
                          (caddr tree))))
 
 (defun handle-computer (tree)
-  (let ((ratings (get-ratings (limit-tree-depth tree *ai-level*)
-                              (car tree))))
+  (let ((ratings (ab-get-ratings-max (limit-tree-depth tree *ai-level*)
+                              (car tree)
+                              most-positive-fixnum
+                              most-negative-fixnum)))
     (cadr (lazy-nth (position (apply #'max ratings) ratings)
                     (caddr tree)))))
 
@@ -198,12 +200,12 @@
 (let ((old-rate-position (symbol-function 'rate-position))
       (previous (make-hash-table)))
   (defun rate-position (tree player)
-                        (let ((tab (gethash player previous)))
-                          (unless tab
-                            (setf tab (setf (gethash player previous) (make-hash-table))))
-                          (or (gethash tree tab)
-                              (setf (gethash tree tab)
-                                    (funcall old-rate-position tree player))))))
+                       (let ((tab (gethash player previous)))
+                         (unless tab
+                           (setf tab (setf (gethash player previous) (make-hash-table))))
+                         (or (gethash tree tab)
+                             (setf (gethash tree tab)
+                                   (funcall old-rate-position tree player))))))
 
 (defun limit-tree-depth (tree depth)
   (list (car tree)
